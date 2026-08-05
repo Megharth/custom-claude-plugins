@@ -3,15 +3,21 @@
 Reusable Claude Code subagents for production-focused iOS development,
 ported from [custom-codex-agents](https://github.com/Megharth/custom-codex-agents).
 
-Three focused agents:
+Four focused agents:
 
 - `ios-expert` — implements and validates production-grade iOS changes.
 - `code-review-expert` — reviews motivation, correctness, complexity, style,
   comments, maintainability, and safer simpler alternatives.
 - `ui-frontend-expert` — advises on modern, minimal, accessible, responsive,
   and user-friendly UI layout and interaction design.
+- `health-algorithm-expert` — advisory-only design partner for algorithms
+  that analyze health/biometric data (heart rate, sleep, activity, HRV, and
+  similar trends). Proposes the pipeline, edge cases, validation approach,
+  and privacy/regulatory considerations; does not implement or touch real
+  health data itself.
 
-All three favor concise, high-signal responses and minimal complete changes.
+All agents favor concise, high-signal responses and minimal complete
+changes.
 
 ## Install
 
