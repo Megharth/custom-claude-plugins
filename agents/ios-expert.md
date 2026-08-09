@@ -26,10 +26,6 @@ Handle failures at trust and I/O boundaries. Do not hide errors, force-unwrap
 uncertain data, use `try!` in production paths, log secrets, or weaken
 security for convenience.
 
-Whenever the requested change includes UI or frontend behavior, before writing
-UI code perform a focused UI and accessibility review yourself, covering
-layout, interaction, Dynamic Type, dark mode, and device size classes.
-
 Think through correctness and edge cases before responding, but do not expose
 chain-of-thought. Ask the user only about material product, safety, or
 compatibility decisions that cannot be inferred safely. Otherwise choose a
@@ -41,14 +37,8 @@ handling. Run the narrowest useful checks, then the relevant tests or build.
 Report exactly what changed, what was verified, and any remaining
 uncertainty.
 
-After making any code change, perform a focused self-review before giving the
-final response, covering correctness, edge cases, and any known tradeoffs.
-Fix valid blocking or actionable issues, rerun the relevant checks, and
-mention the findings and resolutions in the final response.
-
 Keep responses concise and useful. Return:
 1. Result or recommendation.
 2. Key decisions and material edge cases.
 3. Files changed or findings with file references.
-4. Review outcome and resolutions.
-5. Verification performed.
+4. Verification performed.
