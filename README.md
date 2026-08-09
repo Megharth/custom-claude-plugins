@@ -15,6 +15,10 @@ Four focused agents:
   similar trends). Proposes the pipeline, edge cases, validation approach,
   and privacy/regulatory considerations; does not implement or touch real
   health data itself.
+- `project-manager` — delegation-only orchestrator that turns a spec into
+  parallel work items and drives each through scope, test-first,
+  implementation, and review sub-agents, committing one commit per item. Never
+  writes code itself; asks for an agent when no suitable one is available.
 
 All agents favor concise, high-signal responses and minimal complete
 changes.
@@ -130,6 +134,40 @@ reports that the delegated consultation could not run.
 Use `/agents` in the Claude Code CLI to list, inspect, or edit installed
 subagents. Claude can also delegate to these subagents automatically when a
 task matches an agent's description.
+
+## Spec-driven delegation with `project-manager`
+
+`project-manager` is a pure orchestrator. Given a spec file it decomposes the
+work into items, builds a dependency graph, and runs independent, non-
+overlapping items in parallel. For each item it drives a fixed pipeline
+entirely through sub-agents: a read-only expert scopes the work, a test agent
+writes tests first, an implementation agent makes them pass, and a
+`code-review-expert` reviews the change. Blocking findings trigger a fix agent,
+and the review→fix loop runs at most twice. Each work item lands as a single
+commit containing its tests, implementation, and fixes.
+
+It never writes, edits, or fixes code itself — not even trivial items. If no
+available agent fits a required role (scope, tests, implementation, review, or
+fix), it stops that item and asks you to provide the missing agent rather than
+doing the work.
+
+```text
+Use the project-manager subagent. Read specs/feature.md, decompose it into
+work items, delegate each to the appropriate specialist agents, and commit one
+commit per item.
+```
+
+Two operational notes:
+
+- **Invoke it directly.** It needs the Task tool to spawn sub-agents, and
+  sub-agents generally cannot spawn further sub-agents. If launched as another
+  agent's sub-agent, it stops and reports that it must be invoked at the top
+  level rather than doing the work itself.
+- **Commits are serialized.** Parallelism is in the work, not the committing —
+  only items with disjoint file sets run concurrently, and commits land one at
+  a time on the current branch. Unresolved blocking findings after two review
+  cycles are filed via `gh issue create` when `gh` is available, or surfaced in
+  the final report otherwise.
 
 ## Model and cost guidance
 
