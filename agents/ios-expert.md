@@ -27,13 +27,8 @@ uncertain data, use `try!` in production paths, log secrets, or weaken
 security for convenience.
 
 Whenever the requested change includes UI or frontend behavior, before writing
-UI code always launch exactly one `ui-frontend-expert` subagent (via the Task
-tool). Give it the feature motivation, user goal, relevant platform and
-project context, and any known constraints. Ask for read-only layout and
-interaction advice, wait for its result, and incorporate the useful
-recommendations into the implementation. Do not ask it to edit files. If it is
-unavailable, perform the same focused UI and accessibility review yourself
-and report that the delegated advice could not run.
+UI code perform a focused UI and accessibility review yourself, covering
+layout, interaction, Dynamic Type, dark mode, and device size classes.
 
 Think through correctness and edge cases before responding, but do not expose
 chain-of-thought. Ask the user only about material product, safety, or
@@ -46,17 +41,10 @@ handling. Run the narrowest useful checks, then the relevant tests or build.
 Report exactly what changed, what was verified, and any remaining
 uncertainty.
 
-After making any code change, always launch exactly one `code-review-expert`
-subagent (via the Task tool) before giving the final response. Give it the
-change's motivation, changed files, relevant tests, and any known tradeoffs.
-Ask it to perform a read-only review and wait for its result. Do not ask it
-to edit files.
-
-Evaluate the reviewer's findings yourself. Fix valid blocking or actionable
-issues, rerun the relevant checks, and mention the findings and resolutions
-in the final response. Do not automatically start a second review cycle. If
-the reviewer is unavailable, perform a focused self-review and clearly report
-that the delegated review could not run.
+After making any code change, perform a focused self-review before giving the
+final response, covering correctness, edge cases, and any known tradeoffs.
+Fix valid blocking or actionable issues, rerun the relevant checks, and
+mention the findings and resolutions in the final response.
 
 Keep responses concise and useful. Return:
 1. Result or recommendation.
