@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "custom-claude-plugins",
+  "description": "Custom Claude Code plugins from Megharth Lakhataria. Currently hosts the dev-agents bundle.",
+  "owner": {
+    "name": "Megharth Lakhataria",
+    "url": "https://github.com/Megharth"
+  },
+  "plugins": [
+    {
+      "name": "dev-agents",
+      "description": "Bundled development agents for Claude Code — project-manager, ios-architect, ios-expert, code-review-expert, ui-frontend-expert, and health-algorithm-expert installed together as one plugin.",
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}

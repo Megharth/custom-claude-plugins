@@ -1,9 +1,14 @@
-# iOS Agents for Claude Code
+# dev-agents — Development Agents for Claude Code
 
-Reusable Claude Code subagents for production-focused iOS development,
-ported from [custom-codex-agents](https://github.com/Megharth/custom-codex-agents).
+A single Claude Code plugin, `dev-agents`, that bundles six production-focused
+development agents — ported from
+[custom-codex-agents](https://github.com/Megharth/custom-codex-agents) — which
+install **together as one unit**. Installing the plugin registers all six
+agents at once, so `project-manager` is always installed alongside the
+specialists it orchestrates rather than as a standalone agent that might be
+missing its collaborators.
 
-Six focused agents:
+The bundle:
 
 - `ios-architect` — read-only scoping partner. Sizes an iOS work item before
   implementation and returns a brief: intended behavior, recommended approach,
@@ -47,40 +52,48 @@ never by inventing an answer.
 
 ## Install
 
-Claude Code subagents are Markdown files with YAML frontmatter, discovered
-from `agents/` directories.
+This repository is both the plugin and a plugin **marketplace**: it ships a
+`.claude-plugin/marketplace.json`, so you can add the GitHub repo as a
+marketplace and install `dev-agents` from it. Installing the plugin registers
+all six agents together — no copying of individual files.
 
-### Project-scoped
+### From the GitHub marketplace (recommended)
 
-From this repository, copy the agents into the project where you want to use
-them:
-
-```sh
-mkdir -p .claude/agents
-cp /path/to/this-repo/agents/*.md .claude/agents/
-```
-
-Resulting layout:
+In Claude Code:
 
 ```text
-your-app/
-├── .claude/
-│   └── agents/
-│       ├── ios-architect.md
-│       ├── ios-expert.md
-│       ├── code-review-expert.md
-│       ├── ui-frontend-expert.md
-│       ├── health-algorithm-expert.md
-│       └── project-manager.md
-└── ...
+/plugin marketplace add Megharth/custom-claude-plugins
+/plugin install dev-agents
 ```
 
-### Personal (all projects)
+Or with the CLI:
 
 ```sh
-mkdir -p ~/.claude/agents
-cp /path/to/this-repo/agents/*.md ~/.claude/agents/
+claude plugin marketplace add Megharth/custom-claude-plugins
+claude plugin install dev-agents
 ```
+
+After installing, all six agents are available in the project and visible
+via `/agents`.
+
+### From a local checkout (development)
+
+Load the bundle straight from this repository:
+
+```sh
+claude --plugin-dir /path/to/custom-claude-plugins
+```
+
+or start Claude Code and add the local path as a marketplace:
+
+```text
+/plugin marketplace add /path/to/custom-claude-plugins
+/plugin install dev-agents
+```
+
+> **Why a bundle?** Installing as one plugin keeps all six agents in lockstep:
+> you can never end up with `project-manager` installed but missing the
+> specialists it delegates to, because they always ship together.
 
 ## Use
 
@@ -166,7 +179,7 @@ The recommended flow for a non-trivial iOS change is:
 `project-manager` automates exactly this composition across many work items
 in one spec (see below).
 
-Use `/agents` in the Claude Code CLI to list, inspect, or edit installed
+Use `/agents` in the Claude Code CLI to list, inspect, or edit the installed
 subagents. Claude can also delegate to these subagents automatically when a
 task matches an agent's description.
 
