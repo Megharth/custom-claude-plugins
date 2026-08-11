@@ -60,22 +60,35 @@ cp /path/to/this-repo/agents/*.md ~/.claude/agents/
 ## Use
 
 Run `claude` from your project and either let Claude pick the right subagent
-automatically (based on each agent's `description`), or ask explicitly:
+automatically (based on each agent's `description`), or ask explicitly.
+
+`ios-expert` is a focused executor: it writes iOS implementation code and
+tests to a brief. Scoping, UI advice, and code review are separate agents (or
+your own responsibility) — `ios-expert` does not delegate to them itself.
+
+To implement a change:
 
 ```text
-Use the ios-expert subagent to implement this feature. Inspect the project
-first, consider material edge cases, make the smallest production-ready
-change, and run the relevant tests:
-
-[describe the feature]
+Use the ios-expert subagent to implement this feature. Brief: [motivation,
+intended behavior, edge cases, files/components involved, test surface].
+Make the smallest production-ready change, add focused tests where useful,
+and run the relevant checks.
 ```
 
-For a focused review:
+To write tests before an implementation exists:
 
 ```text
-Use the ios-expert subagent to review this change for correctness,
-concurrency, accessibility, security, performance, and missing tests. Return
-only actionable findings with file references.
+Use the ios-expert subagent in tests-only mode. Brief: [intended behavior
+and edge cases]. Write tests only — do not add implementation. The tests are
+expected to fail until the implementation lands.
+```
+
+To address review findings:
+
+```text
+Use the ios-expert subagent to fix these review findings: [findings].
+Address only these findings and anything they directly break; do not take on
+unrelated cleanup.
 ```
 
 For a motivation-aware code review:
@@ -103,33 +116,25 @@ mode, keyboard, responsive layouts, and loading/error/empty states. Return
 advice only; do not edit files.
 ```
 
-When `ios-expert` develops UI, it requests this advice automatically before
-implementation.
+`ios-expert` no longer launches other subagents itself. Ask
+`ui-frontend-expert` for design advice first when you want it, then pass the
+resulting brief into `ios-expert`. Follow up with `code-review-expert`
+(directly or via `project-manager`) for the review.
 
-## Automatic review after implementation
+## Composing the agents
 
-When `ios-expert` changes code, it automatically launches exactly one
-`code-review-expert` subagent (via the Task tool) before completing. The
-reviewer receives the change motivation, changed files, tests, and known
-tradeoffs. It reviews read-only; `ios-expert` evaluates the findings, fixes
-valid issues, reruns the relevant checks, and reports the review outcome.
+The recommended flow for a non-trivial iOS change is:
 
-Install both agent files together for this workflow. If `code-review-expert`
-is not installed or cannot be launched, `ios-expert` performs a focused
-self-review and reports that the delegated review was unavailable.
+1. (Optional, for UI work) Run `ui-frontend-expert` read-only for layout,
+   interaction, accessibility, responsive, and localization recommendations.
+2. Run `ios-expert` with a brief that includes the motivation, intended
+   behavior, edge cases, files/components involved, and (when known) the test
+   surface — plus any advice from step 1.
+3. Run `code-review-expert` on the resulting diff. If it reports blocking
+   findings, hand them back to `ios-expert` in fix mode.
 
-## Automatic UI consultation
-
-When an `ios-expert` task includes UI or frontend work, it automatically
-launches exactly one `ui-frontend-expert` subagent before implementation.
-The UI agent is read-only and returns layout, interaction, accessibility,
-responsive, and localization recommendations. `ios-expert` incorporates the
-advice, implements the change, and then launches `code-review-expert` once
-for the final code review.
-
-Install all three agent files together for the complete workflow. If the UI
-agent is unavailable, `ios-expert` performs a focused self-review and
-reports that the delegated consultation could not run.
+`project-manager` automates exactly this composition across many work items
+in one spec (see below).
 
 Use `/agents` in the Claude Code CLI to list, inspect, or edit installed
 subagents. Claude can also delegate to these subagents automatically when a
