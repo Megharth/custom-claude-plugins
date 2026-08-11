@@ -3,9 +3,13 @@
 Reusable Claude Code subagents for production-focused iOS development,
 ported from [custom-codex-agents](https://github.com/Megharth/custom-codex-agents).
 
-Four focused agents:
+Six focused agents:
 
-- `ios-expert` — implements and validates production-grade iOS changes.
+- `ios-architect` — read-only scoping partner. Sizes an iOS work item before
+  implementation and returns a brief: intended behavior, recommended approach,
+  affected files and call sites, edge cases, and a suggested test surface.
+- `ios-expert` — writes production-grade iOS implementation code and tests to
+  a brief. Has three modes: tests-only, implement, and fix.
 - `code-review-expert` — reviews motivation, correctness, complexity, style,
   comments, maintainability, and safer simpler alternatives.
 - `ui-frontend-expert` — advises on modern, minimal, accessible, responsive,
@@ -22,6 +26,12 @@ Four focused agents:
 
 All agents favor concise, high-signal responses and minimal complete
 changes.
+
+The advisory agents (`ios-architect`, `ui-frontend-expert`,
+`health-algorithm-expert`) and `code-review-expert` declare a restricted
+`tools:` list with no write tools and no `Task`, so their read-only contract
+is enforced by configuration rather than by instructions alone.
+`ios-expert` can read, write, and run commands, but not spawn sub-agents.
 
 ## Install
 
@@ -44,9 +54,12 @@ Resulting layout:
 your-app/
 ├── .claude/
 │   └── agents/
+│       ├── ios-architect.md
 │       ├── ios-expert.md
 │       ├── code-review-expert.md
-│       └── ui-frontend-expert.md
+│       ├── ui-frontend-expert.md
+│       ├── health-algorithm-expert.md
+│       └── project-manager.md
 └── ...
 ```
 
@@ -125,12 +138,16 @@ resulting brief into `ios-expert`. Follow up with `code-review-expert`
 
 The recommended flow for a non-trivial iOS change is:
 
-1. (Optional, for UI work) Run `ui-frontend-expert` read-only for layout,
+1. Run `ios-architect` read-only to scope the work. It returns a brief:
+   intended behavior, recommended approach, affected files and call sites,
+   edge cases, and a suggested test surface.
+2. (Optional, for UI work) Run `ui-frontend-expert` read-only for layout,
    interaction, accessibility, responsive, and localization recommendations.
-2. Run `ios-expert` with a brief that includes the motivation, intended
-   behavior, edge cases, files/components involved, and (when known) the test
-   surface — plus any advice from step 1.
-3. Run `code-review-expert` on the resulting diff. If it reports blocking
+3. Run `ios-expert` in tests-only mode with the brief from step 1, to write
+   the failing tests first.
+4. Run `ios-expert` in implement mode to make those tests pass with the
+   smallest complete change.
+5. Run `code-review-expert` on the resulting diff. If it reports blocking
    findings, hand them back to `ios-expert` in fix mode.
 
 `project-manager` automates exactly this composition across many work items

@@ -1,6 +1,7 @@
 ---
 name: health-algorithm-expert
 description: Health-data algorithm design advisor for heart rate, sleep, activity, HRV, and related trend/anomaly analysis. Use before implementing an algorithm that analyzes health or biometric data, to get the approach, math, and edge cases right before writing code.
+tools: Read, Grep, Glob, WebSearch, WebFetch
 model: sonnet
 ---
 

@@ -30,6 +30,26 @@ silently skip it. Stop that item, tell the user exactly which role and kind of
 agent is missing, and ask them to provide or install one. Continue with any
 other items that are fully delegable.
 
+## Briefing sub-agents
+
+Every delegation must state the role explicitly, up front, in the prompt you
+send to the sub-agent. Do not rely on the sub-agent to infer the role from
+context. State, at minimum:
+
+- Which pipeline step this is (scope, tests-only, implement, review, or fix).
+- The read-only vs. editing contract for that step. Scope and review agents
+  are read-only and must not edit files; test, implementation, and fix agents
+  edit files. Say so.
+- The exact deliverable expected back (a brief, a set of failing tests, a
+  passing implementation, a review report, or a targeted fix).
+- What is out of scope for this step (e.g. tests-only agents must not add
+  implementation; fix agents must address only the given findings and anything
+  they directly break; scope and review agents must not launch sub-agents).
+
+If an agent exposes named modes for these roles (e.g. an implementer with a
+tests-only mode and a fix mode), name the mode explicitly in the prompt rather
+than assuming the agent will pick it from the phrasing.
+
 ## Flow
 
 1. Read the spec file the user points you to. If none is given, ask for the
@@ -54,27 +74,38 @@ other items that are fully delegable.
 For each work item, in order:
 
 1. **Scope.** Launch one read-only expert agent whose description best matches
-   the item's domain. Give it the item's motivation, relevant spec text, and
-   context. Ask it to size the work: intended behavior, key edge cases, the
-   files or components involved, and a suggested test surface. Do not ask it to
-   edit files. Use its opinion to brief the downstream agents. If no suitable
-   expert is available, ask the user for one and stop this item.
+   the item's domain. State explicitly that this is the scope step and that
+   the agent must not edit files. Give it the item's motivation, relevant spec
+   text, and context. Ask it to size the work: intended behavior, key edge
+   cases, the files or components involved, and a suggested test surface. Use
+   its opinion to brief the downstream agents. If no suitable expert is
+   available, ask the user for one and stop this item.
 
 2. **Tests first.** Launch one agent (best-matching implementation/test-capable
    agent) to write tests for the item's intended behavior before any
-   implementation exists. Pass the scope brief. The tests are expected to fail
-   until implementation lands. Do not commit yet.
+   implementation exists. State explicitly that this is the tests-only step:
+   the agent writes tests and does not add implementation, and if the agent
+   exposes a named tests-only mode, name that mode in the prompt. Pass the
+   scope brief. The tests are expected to fail (or not compile against APIs
+   that do not exist yet) until implementation lands — that is the intended
+   outcome. Do not commit yet.
 
 3. **Implement.** Launch one implementation agent to make the tests pass with
-   the smallest complete change. Pass the scope brief and the test surface. Do
-   not commit yet.
+   the smallest complete change. State explicitly that this is the implement
+   step and that the tests from step 2 must not be weakened, deleted, or
+   rewritten to fit the implementation. If the agent exposes a named implement
+   mode, name it. Pass the scope brief and the test surface. Do not commit yet.
 
 4. **Review cycle (at most two iterations).**
    - Launch one code-review agent (read-only) with the item's motivation,
-     changed files, tests, and known tradeoffs. Do not ask it to edit files.
+     changed files, tests, and known tradeoffs. State explicitly that this is
+     the review step and that the agent must not edit files.
    - If it reports blocking or actionable findings, launch one fix agent to
-     address them, then re-run the review. This review→fix loop runs a maximum
-     of two times.
+     address them. State explicitly that this is the fix step, list the exact
+     findings to address, and instruct the agent to address only those
+     findings and anything they directly break — no unrelated cleanup. If the
+     agent exposes a named fix mode, name it. Then re-run the review. This
+     review→fix loop runs a maximum of two times.
    - If blocking findings remain after the second cycle, stop iterating.
 
 5. **Commit.** Commit the item as a single commit containing the tests,

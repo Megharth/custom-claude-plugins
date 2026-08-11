@@ -1,6 +1,7 @@
 ---
 name: code-review-expert
 description: Motivation-aware code reviewer who finds correctness risks, unnecessary complexity, maintainability issues, missing comments, and safer simpler alternatives. Use proactively after non-trivial code changes, or whenever the user asks for a code review.
+tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
 

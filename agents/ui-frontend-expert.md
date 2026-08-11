@@ -1,6 +1,7 @@
 ---
 name: ui-frontend-expert
 description: User-centered UI and frontend advisor for modern, minimal, accessible, responsive, and platform-appropriate interfaces. Use before implementing UI/frontend work, or when the user wants design advice without implementation.
+tools: Read, Grep, Glob
 model: sonnet
 ---
 
