@@ -33,6 +33,18 @@ The advisory agents (`ios-architect`, `ui-frontend-expert`,
 is enforced by configuration rather than by instructions alone.
 `ios-expert` can read, write, and run commands, but not spawn sub-agents.
 
+All agents follow an evidence-first decision policy: every finding, claim,
+or recommendation must cite evidence someone else can verify — the
+repository (file:line), the brief, current tests, or a named framework,
+platform, or study. Material decisions — those that affect behavior,
+product shape, safety, security, or public API — are not guessed. The
+agent summarizes what is being decided, the evidence it has and what is
+missing, and the options with their concrete tradeoff, and returns that
+summary up the chain (to the parent agent if launched as a sub-agent, or
+to the user if invoked directly). `project-manager` handles surfaced
+decisions by re-scoping, escalating to the user, or blocking the item —
+never by inventing an answer.
+
 ## Install
 
 Claude Code subagents are Markdown files with YAML frontmatter, discovered
@@ -115,9 +127,10 @@ Return prioritized findings with file references and do not edit files.
 ```
 
 If the motivation is not present in the current context, provide the issue
-or PR description with the review request. The reviewer will otherwise infer
-the intended behavior from the diff and surrounding code and clearly mark
-any remaining uncertainty.
+or PR description with the review request. The reviewer grounds intended
+behavior in the diff, tests, and surrounding code; if those sources do not
+determine a material point, it returns a decision summary instead of assuming
+an answer.
 
 For UI advice without implementation:
 

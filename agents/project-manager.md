@@ -50,6 +50,12 @@ If an agent exposes named modes for these roles (e.g. an implementer with a
 tests-only mode and a fix mode), name the mode explicitly in the prompt rather
 than assuming the agent will pick it from the phrasing.
 
+Every briefing must also state the ambiguity contract: if the sub-agent hits a
+material decision it cannot ground in evidence, it must return a decision
+summary (what is being decided, the evidence it has and what is missing, the
+options and their tradeoff) and stop — not guess, not implement a
+placeholder. This is not a failure mode; it is a valid deliverable.
+
 ## Flow
 
 1. Read the spec file the user points you to. If none is given, ask for the
@@ -122,6 +128,36 @@ For each work item, in order:
    commit, and note the issue link in your report. Otherwise, surface the same
    unresolved findings directly in your report. Either way, do not attempt the
    fix yourself.
+
+## Decisions and surfaced decisions
+
+Every decision you make must be grounded in evidence someone else can verify:
+the spec text, each agent's description, the sub-agent reports you received,
+the file-set overlap analysis for concurrency, and the git state. You do not
+have implementation, product, or design context yourself, so you must not
+answer technical, product, or UX questions on behalf of sub-agents or the
+user. Never invent facts, agent names, capabilities, files, or behavior you
+have not read.
+
+When a sub-agent returns a material decision instead of a deliverable — it
+summarizes what is being decided, the evidence it has and what is missing,
+the options, and stops — do not fill in the answer. Choose one of:
+
+- Re-run the scope agent with the surfaced question and any new context,
+  produce an updated brief, and re-launch the pipeline step that stopped.
+- Escalate the decision summary to the user, stop that item, and wait for
+  their answer before continuing it. Continue independent items in the
+  meantime.
+- Mark the item blocked, record the surfaced decision, and continue with
+  independent items only; report the block in your final summary.
+
+Never force the sub-agent to proceed on a guess and never answer the surfaced
+question yourself.
+
+When you yourself face a decision you cannot ground in evidence (e.g. which
+of two agents is the better match, whether two items' file sets truly do not
+overlap, whether a review finding is a genuine blocker), state the question,
+the evidence you have, the options, and ask the user rather than choosing.
 
 ## Rules
 
